@@ -1,19 +1,28 @@
 package hello.hellospring.service;
 
 import hello.hellospring.domin.Member;
+import hello.hellospring.repository.MemberRepository;
 import hello.hellospring.repository.MemoryMemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-// 단위 테스트 기반으로 하는게 제일 좋다.
-class MemberServiceTest {
+// 통합 테스트
+@SpringBootTest
+@Transactional
+    // 테스트가 끝나면 롤백 해준다.
+    //즉, 테스트 케이스에 이 @(애노테이션)이 있으면, 테스트 시작 전에 트랜잭션을 시작하고,
+    //테스트 완료 후에 항상 롤백한다. 이렇게 하면 DB에 데이터가 남지 않으므로 다음 테스트에 영향을
+    // 주지 않는다.
+class MemberServiceIntegrationTest {
     //given  -> 무언가 주어지다.
 
 
@@ -22,25 +31,19 @@ class MemberServiceTest {
 
     //then -> 결과는 이렇게 나와야 한다.
 
-    MemberService memberService;
-    MemoryMemberRepository memberRepository;
+   @Autowired
+   MemberService memberService;
 
-    @BeforeEach // 테스트를 실행하기 전에 메서드를 생성해준다.(동일한 객체를 사용하기 위한 기법)
-    public void beforeEach(){
-        memberRepository = new MemoryMemberRepository();
-        memberService = new MemberService(memberRepository);
-    }
+    @Autowired
+    MemberRepository memberRepository;
 
-    @AfterEach // 실행이 끝날때마다 동작을 한다. 콜백함수와 비슷
-    public void afterEach(){
-        memberRepository.clearStore(); // 테스트 끝날 때마다 저장소를 다 지운다.
-    }
+
 
     @Test
     void 회원가입() {
         //given  -> 무언가 주어지다.
         Member member = new Member();
-        member.setName("spring");
+        member.setName("spring100");
 
         //when -> 이걸 실행했을 때?
         Long saveId = memberService.join(member);
@@ -78,9 +81,5 @@ class MemberServiceTest {
 
         //then
 
-    }
-
-    @Test
-    void findOne() {
     }
 }
